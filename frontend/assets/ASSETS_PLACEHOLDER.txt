@@ -1,0 +1,12 @@
+Assets Directory for Academic Weapon Challenge
+
+This directory will contain:
+- App icon (icon.png)
+- Splash screen (splash.png)
+- Adaptive icon for Android (adaptive-icon.png)
+- Notification icon (notification-icon.png)
+- Favicon (favicon.png)
+- Other images and assets
+
+For now, these have been temporarily removed from app.json to allow the app to run.
+You can add proper icons later following Expo's asset guidelines.

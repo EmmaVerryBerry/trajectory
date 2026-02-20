@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Academic Weapon Challenge",
+    "slug": "academic-weapon-challenge",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#000814"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.academicweapon.challenge"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000814"
+      },
+      "package": "com.academicweapon.challenge"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
