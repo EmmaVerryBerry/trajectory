@@ -3,24 +3,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-// Import screens (to be created)
-// import HomeScreen from './src/screens/HomeScreen';
-// import GoalsScreen from './src/screens/GoalsScreen';
-// import TimerScreen from './src/screens/TimerScreen';
-// import SocialScreen from './src/screens/SocialScreen';
-// import ProfileScreen from './src/screens/ProfileScreen';
+// Import screens 
+import HomeScreen from './src/screens/HomeScreen';
+import GoalsScreen from './src/screens/GoalsScreen';
+import TimerScreen from './src/screens/TimerScreen';
+import SocialScreen from './src/screens/SocialScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-// Placeholder component until screens are created
-function PlaceholderScreen({ title }) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
 
 export default function App() {
   return (
@@ -35,24 +26,22 @@ export default function App() {
         }}
       >
         <Tab.Screen
-          name="Home"
-          component={() => <PlaceholderScreen title="Home" />}
-        />
+         name="Home" component={HomeScreen} />
         <Tab.Screen
           name="Goals"
-          component={() => <PlaceholderScreen title="Goals" />}
+          component={GoalsScreen}
         />
         <Tab.Screen
           name="Timer"
-          component={() => <PlaceholderScreen title="Timer" />}
+          component={TimerScreen}
         />
         <Tab.Screen
           name="Social"
-          component={() => <PlaceholderScreen title="Social" />}
+          component={SocialScreen}
         />
         <Tab.Screen
           name="Profile"
-          component={() => <PlaceholderScreen title="Profile" />}
+          component={ProfileScreen}
         />
       </Tab.Navigator>
     </NavigationContainer>
