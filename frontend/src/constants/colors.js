@@ -1,23 +1,52 @@
-// Academic Weapon Challenge Color Palette
-export const COLORS = {
-  // Primary Colors
-  INK_BLACK: '#000814',
-  PERSIAN_BLUE: '#001D3D',
-  REGAL_NAVY: '#003566',
+// Color palette extracted from Figma design
+export const colors = {
+  // Primary
+  primary: '#000814',
+  primaryDark: '#001d3d',
 
-  // Accent Colors
-  SCHOOL_BUS_YELLOW: '#FFC300',
-  GOLD: '#FFD60A',
+  // Accent/Brand
+  accent: '#ffc300',
+  accentLight: '#ffd60a',
 
-  // Semantic Colors
-  PRIMARY: '#000814',
-  SECONDARY: '#001D3D',
-  BACKGROUND: '#001D3D',
-  CARD_BACKGROUND: '#003566',
-  ACCENT: '#FFC300',
-  ACCENT_LIGHT: '#FFD60A',
-  TEXT_PRIMARY: '#ffffff',
-  TEXT_SECONDARY: '#000814',
+  // Blues
+  blue: '#003566',
+  blueOpacity10: 'rgba(0, 53, 102, 0.1)',
+  blueLight: '#2b7fff',
+  blueLighter: '#51a2ff',
+  bluePastel: '#bedbff',
+  blueBackground: '#dbeafe',
+  blueBackgroundLight: '#eff6ff',
+  blueTextLight: '#e8f0fe',
+
+  // White/Transparency
+  white: '#ffffff',
+  whiteOpacity05: 'rgba(255, 255, 255, 0.05)',
+  whiteOpacity10: 'rgba(255, 255, 255, 0.1)',
+  whiteOpacity40: 'rgba(255, 255, 255, 0.4)',
+
+  // Black/Transparency
+  black: '#000000',
+  blackTransparent: 'rgba(0, 0, 0, 0)',
+  blackOpacity40: 'rgba(0, 0, 0, 0.4)',
+
+  // Grays
+  gray: '#717182',
+  grayLight: '#d1d5dc',
+  grayBorder: '#e5e7eb',
+  grayBackground: '#f9fafb',
+  grayBackgroundAlt: '#f3f3f5',
+
+  // Status
+  success: '#00c950',
+  successLight: '#05df72',
+  error: '#fb2c36',
+  errorLight: '#ff6467',
+  warning: '#ff6900',
+  warningLight: '#ff8904',
+
+  // Special
+  purple: '#ad46ff',
+  purpleLight: '#c27aff',
 };
 
-export default COLORS;
+export default colors;
