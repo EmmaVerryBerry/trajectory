@@ -1,19 +1,53 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
 export default function TimerScreen() {
+  const [timeLeft, setTimeLeft] = useState(1500); // 25 minutes in seconds
+  const [isRunning, setIsRunning] = useState(false);
+  useEffect(() => {
+    let timer;
+    if (isRunning && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsRunning(false);
+    }
+    return () => clearInterval(timer);
+  }, [isRunning, timeLeft]);
+
+  const toggleTimer = () => {
+    setIsRunning(prev => !prev);
+  };
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTimeLeft(1500);
+  };  
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.title}>Pomodoro Timer</Text>
 
-      {/* Placeholder for timer */}
-      <View style={styles.timerContainer}>
-        <Text style={styles.timerText}>25:00</Text>
+  <View style={styles.timerContainer}>
+        {/* This now uses the formatTime function and timeLeft variable from above! */}
+        <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
       </View>
 
-      {/* Placeholder for controls */}
       <View style={styles.controlsContainer}>
-        <Text style={styles.placeholderText}>Timer controls will appear here</Text>
+        {/* These buttons trigger the toggleTimer and resetTimer functions from above! */}
+        <TouchableOpacity style={styles.button} onPress={toggleTimer}>
+          <Text style={styles.buttonText}>{isRunning ? 'Pause' : 'Start'}</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={resetTimer}>
+          <Text style={[styles.buttonText, { color: '#FFC300' }]}>Reset</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Placeholder for settings */}
@@ -24,7 +58,7 @@ export default function TimerScreen() {
         <Text style={styles.placeholderText}>- Study tips</Text>
         <Text style={styles.placeholderText}>- Break suggestions</Text>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -32,6 +66,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#001D3D',
+    padding: 20,
+  },
+  scrollContainer: {
+    flexGrow: 1, // This tells the scroll view to expand to fit the screen
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -58,6 +96,26 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     marginBottom: 30,
+    flexDirection: 'row',
+    gap: 15,
+  },
+  button: {
+    backgroundColor: '#FFC300',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  resetButton: {
+    backgroundColor: '#003566',
+    borderWidth: 2,
+    borderColor: '#FFC300',
+  },
+  buttonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#001D3D',
   },
   settingsContainer: {
     backgroundColor: '#003566',
