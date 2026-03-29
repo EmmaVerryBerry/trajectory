@@ -1,152 +1,75 @@
-# Academic Weapon Challenge
+# Trajectory
 
-An academic social networking mobile application designed to encourage productive study habits through goal setting, accountability, and friendly competition.
+A mobile app for university students to build and sustain strong academic habits through study tracking, goal setting, social accountability, and gamification.
 
-## Project Overview
+## Team
 
-The Academic Weapon Challenge helps students track their study progress, maintain streaks, earn achievements, and compete with friends through gamification and social reinforcement.
+| Name | FSU ID | Role |
+|------|--------|------|
+| Emma Berry (Emb23e) | emb23e | Frontend, Design |
+| Caitlin O'Donnell | cmo21e | Backend, Database |
+| Hailie Tucker | hlt22c | Frontend, UI/UX |
+| Joseph Daniele | jnd23a | Backend, Database |
 
-## Team Members
+## Project Documentation
 
-- **Caitlin O’Donnell (cmo21e)**: Experience with MySQL, Python, C++, and C#. Will manage the backend portion of the project as well as assist with developing any core features as necessary.
-- **Hailie Tucker (hlt22c)**: experience with HTML, C++, C#, JavaScript, Unity, Blender, git bash, will work on mainly front end for the project, so UX/UI implementation 
-- **Emma Berry (Emb23e)**: experience with typescript, react, c++, css/html frontend, design, figma, so I would like to manage design if possible and assist in any other aspect of frontend and backend. I have a pretty broad experience range so I’m open to helping with anything needed.
-- **Joseph Daniele (jnd23a)**: experience with c++, c sharp, and MySQL. Will manage backend with Caitlin and also assist with any additional features as needed.
+| Document | Increment 2 |
+|----------|-------------|
+| Progress Report | [Increment 2](increment2/ProgressReport_Increment2.md) |
+| Requirements & Design | [Increment 2](increment2/RD_Document_Increment2.md) |
+| Implementation & Testing | [Increment 2](increment2/IT_Document_Increment2.md) |
 
+## Features
+
+- **Study Session Logging** — Track sessions by subject, duration, and notes
+- **Goal Setting** — Create and monitor academic goals with deadlines and priorities
+- **Pomodoro Timer** — Built-in 25/5 focus timer with pause and reset
+- **Achievements** — Earn badges for academic milestones and streaks
+- **Friends** — Connect with peers and view their study activity
+- **Community Feed** — Post updates, like, and comment with the academic community
+- **Profile** — View your stats, streak, and earned badges
 
 ## Tech Stack
 
-### Frontend
-- React Native
-- Expo
-- TypeScript/JavaScript
+**Frontend:** React Native, Expo, JavaScript, React Navigation, Expo Font (Aldrich + Space Grotesk)
 
-### Backend
-- Node.js
-- Express.js
-- MySQL
-
-### Third-Party Libraries
-- mysql2 - MySQL client for Node.js
-- cors - Cross-origin resource sharing
-- dotenv - Environment variable management
-
-## Project Structure
-
-```
-Trajectory/
-├── frontend/           # React Native/Expo mobile app
-├── backend/           # Node.js/Express API server
-├── database/          # Database schemas and migrations
-├── docs/              # Project documentation
-└── README.md
-```
+**Backend (planned):** Node.js, Express.js, MySQL
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-- MySQL Server
+- Node.js v18+
 - Expo CLI (`npm install -g expo-cli`)
-- Git
+- Expo Go app on your phone (for testing)
 
-### Installation
+### Run the app
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd Trajectory
-```
-
-2. Switch to development branch:
-```bash
-git checkout development
-```
-
-3. Set up the backend:
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your database credentials
-npm run dev
-```
-
-4. Set up the frontend:
 ```bash
 cd frontend
 npm install
 npm start
 ```
 
-5. Set up the database:
-```bash
-# Create MySQL database
-mysql -u root -p < database/schema.sql
+Then press `i` for iOS simulator, `a` for Android, or scan the QR code with Expo Go.
+
+## Repository Structure
+
+```
+Trajectory/
+├── frontend/          # React Native/Expo mobile app
+├── backend/           # Node.js/Express API (planned)
+├── database/          # Database schemas
+├── docs/              # Additional documentation
+├── increment2/        # Increment 2 deliverables
+└── README.md
 ```
 
-## Features
+## Branch Strategy
 
-### Core Features
-- **Goal Setting**: Calculate recommended study time based on credit hours and difficulty
-- **Study Logging**: Track study sessions and progress
-- **Pomodoro Timer**: Adjustable timer with focus sounds
-- **Achievements & Streaks**: Track milestones and consecutive study days
-- **Social Features**: Friends list, leaderboards, activity feed
-- **Community**: Group-based rankings and global leaderboards
-- **Notifications**: Reminders and streak warnings
-
-## Design System
-
-### Colors
-- `#000814` - Ink Black (Primary)
-- `#001D3D` - Persian Blue
-- `#003566` - Regal Navy
-- `#FFC300` - School Bus Yellow (Accent)
-- `#FFD60A` - Gold (Accent)
-
-### Fonts
-- **Title**: Aldrich
-- **Title**: Aldrich
-- **Body**: Space Grotesk (recommended)
-- **Alt Options**: Agdasima, Alumni Sans SC, Pixelify Sans
-
-## Development Workflow
-
-### Branch Structure
-- `main` - Production-ready code
-- `development` - Active development branch (default for all work)
-- `feature/*` - Individual feature branches
-
-### Contributing
-
-1. Ensure you're on the development branch:
-```bash
-git checkout development
-git pull origin development
-```
-
-2. Create a feature branch:
-```bash
-git checkout -b feature/your-feature-name
-```
-
-3. Make your changes and commit:
-```bash
-git add .
-git commit -m "Description of changes"
-```
-
-4. Push your feature branch:
-```bash
-git push origin feature/your-feature-name
-```
-
-5. Create a Pull Request to merge into `development`
-
-6. After review and approval, merge to `development`
+- `master` — production-stable
+- `development` — active development (default for all work)
+- `feature/*` — individual feature branches
 
 ## License
 
-Copyright 2026 - CEN 4090L Group Project
+Copyright 2026 — CEN 4090L Group Project, Florida State University
