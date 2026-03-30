@@ -13,11 +13,11 @@ A mobile app for university students to build and sustain strong academic habits
 
 ## Project Documentation
 
-| Document | Increment 2 |
-|----------|-------------|
-| Progress Report | [Increment 2](increment2/ProgressReport_Increment2.md) |
-| Requirements & Design | [Increment 2](increment2/RD_Document_Increment2.md) |
-| Implementation & Testing | [Increment 2](increment2/IT_Document_Increment2.md) |
+| Document | Increment 1 | Increment 2 |
+|----------|-------------|-------------|
+| Progress Report | — | [Increment 2](increment2/ProgressReport_Increment2.md) |
+| Requirements & Design | [Increment 1](increment1/RD_Document_Increment1.md) | [Increment 2](increment2/RD_Document_Increment2.md) |
+| Implementation & Testing | [Increment 1](increment1/IT_Document_Increment1.md) | [Increment 2](increment2/IT_Document_Increment2.md) |
 
 ## Features
 
@@ -60,6 +60,7 @@ Trajectory/
 ├── backend/           # Node.js/Express API (planned)
 ├── database/          # Database schemas
 ├── docs/              # Additional documentation
+├── increment1/        # Increment 1 deliverables
 ├── increment2/        # Increment 2 deliverables
 └── README.md
 ```
