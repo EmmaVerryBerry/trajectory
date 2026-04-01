@@ -48,4 +48,4 @@ Group 8 | Version 2.0 | Authors: Hailie Tucker, Emma Berry, Caitlin O'Donnell, J
 
 - **Code Inspections:** walkthroughs of `App.js` and all screen files to confirm the navigation structure, component reuse (Button, Input, Card), and design token usage are consistent and correct.
 - **Peer Reviews:** team members review code pushes for screen implementation, timer functionality, and auth flow before merging into the development branch.
-- **Design Documentation Audit:** team reviewed all screens against the Figma design spec to confirm dark theme, typography, spacing, and color system are consistently reflected throughout the implementation.
+- **Design Documentation Audit:** team reviewed all screens against the Figma design spec to confirm dark theme, typography, spacing, and color system are consistently reflected throughout the implementation. Figma file: [Trajectory – Figma Design](https://www.figma.com/design/CSUlJeNtNKxdKE7NkYVlq2/trajectory?node-id=9-255&t=By26rfgaF4xFXliV-1)

@@ -1,6 +1,4 @@
-# Progress Report — Increment 2 — Group #[YOUR GROUP NUMBER]
-
-> Fill in bracketed placeholders before submitting. Remove italic instructions per the template.
+# Progress Report - Increment 2 - Group #8
 
 ---
 
@@ -8,10 +6,10 @@
 
 | Name | FSU ID | GitHub ID |
 |------|--------|-----------|
-| Emma Berry | [Emb23e] | EmmaVerryBerry | RamenNdraw |
-| [Teammate 2] | [FSU ID] | [GitHub username] |
-| [Teammate 3] | [FSU ID] | [GitHub username] |
-| [Teammate 4] | [FSU ID] | [GitHub username] |
+| Emma Berry | Emb23e | EmmaVerryBerry |
+| Hailie Tucker | hlt22c | HailieT |
+| Caitlin O’Donnel | cmo21e | [GitHub username] |
+| Joseph Danielle | [FSU ID] | [GitHub username] |
 
 ---
 
@@ -64,7 +62,7 @@ Every screen in the application has been built with the full dark-theme design l
 - Tab bar icon assets added for all five tabs.
 
 ### Bug Fixes
-- Resolved Metro bundler crash from corrupted binary characters (`0x0F` control char and bare `\r`) in `CommunityScreen.js`.
+- Resolved Metro bundler crash from corrupted binary characters in `CommunityScreen.js`.
 - Resolved `Asset not found: icon.png` error by generating valid placeholder PNG assets.
 
 ### Overall Project Status
@@ -72,49 +70,49 @@ The frontend of Trajectory is feature-complete at the UI/UX layer. All planned s
 
 ---
 
-## Challenges, Changes in Plan and Scope, and Things That Went Wrong
+## Challenges, Changes in the Plan and Scope of the Project and Things That Went Wrong During This Increment
 
 **1. No Backend Integration**
-Connecting the frontend to a live server proved more complex than initially scoped within this increment. The team prioritized delivering a complete, polished frontend experience. Backend integration (user authentication, session storage, social features) is planned for Increment 3.
+Connecting the frontend to a live server proved more complex than initially scoped within this increment. Backend integration (user authentication, session storage, social features) is planned for Increment 3. It was planned to have this somewhat built out this increment but it wasn't able to be fully flushed out in the time.
 
 **2. Asset and Bundler Issues**
 The Metro bundler failed on startup due to two issues discovered early in the increment: corrupted binary data in a source file and missing required image assets. Both were resolved through debugging but consumed development time.
 
 **3. Design Alignment**
-The initial implementation diverged from the Figma design specs — inputs and card backgrounds rendered in white instead of the intended dark theme. This required revising the component library and all screen styles to align with the design system.
+The initial implementation diverged from the Figma design specs, inputs and card backgrounds rendered in white instead of the intended dark theme. This required revising the component library and all screen styles to align with the design system.
 
 **4. Merge Conflicts**
-Remote changes on the `development` branch introduced a simpler navigation structure with different screen names (`GoalsScreen`, `TimerScreen`, `SocialScreen`). This caused a merge conflict that was resolved by retaining the more complete navigation implementation.
+Remote changes on the `development` branch introduced a simpler navigation structure with different screen names. This caused a merge conflict that was resolved by retaining the more complete navigation implementation.
 
 ---
 
-## Team Member Contributions for This Increment
+## Team Member Contribution for This Increment
 
 ### Emma Berry
 - **Progress Report:** Wrote all sections of this report.
-- **RD Document:** [sections contributed]
-- **IT Document:** [sections contributed]
-- **Source Code:** LoginScreen, SignUpScreen redesign; auth navigation flow (`navigation.reset`); fixed Metro asset errors; fixed corrupted `CommunityScreen.js`; design token system (`colors.js`, `Typography.js`, `Spacing.js`, `index.js`); `Input` component dark theme update; `App.js` navigator restructure; placeholder PNG assets.
-- **Video:** [contribution]
+- **Requirements and Design Document:** Wrote all of the increment two section updates from increment one.
+- **Implementation and Testing Document:** Wrote all of the increment two section updates from increment one.
+- **Source Code:** LoginScreen, SignUpScreen redesign; auth navigation flow; fixed Metro asset errors; fixed corrupted `CommunityScreen.js`; design token system (`colors.js`, `Typography.js`, `Spacing.js`, `index.js`); `Input` component dark theme update; `App.js` navigator restructure; placeholder PNG assets; Figma design; implementation of design; all screens.
+- **Video:** Created, edited, and published the video for increment two
 
-### [Teammate 2]
+### Hailie Tucker
 - **Progress Report:** [sections]
-- **RD Document:** [sections]
-- **IT Document:** [sections]
+- **Requirements and Design Document:** [sections]
+- **Implementation and Testing Document:** [sections]
 - **Source Code:** [features]
 - **Video:** [contribution]
 
-### [Teammate 3]
+### Caitlin O’Donnel
 - **Progress Report:** [sections]
-- **RD Document:** [sections]
-- **IT Document:** [sections]
+- **Requirements and Design Document:** [sections]
+- **Implementation and Testing Document:** [sections]
 - **Source Code:** [features]
 - **Video:** [contribution]
 
-### [Teammate 4]
+### Joseph Danielle
 - **Progress Report:** [sections]
-- **RD Document:** [sections]
-- **IT Document:** [sections]
+- **Requirements and Design Document:** [sections]
+- **Implementation and Testing Document:** [sections]
 - **Source Code:** [features]
 - **Video:** [contribution]
 
@@ -122,16 +120,17 @@ Remote changes on the `development` branch introduced a simpler navigation struc
 
 ## Plans for the Next Increment
 
-In Increment 3 (due April 27, 2026), the team plans to:
+In Increment 3, the team plans to:
 
-1. **Backend integration** — implement a REST API (Node.js/Express) and database (PostgreSQL or Firebase) to replace all static/mock data with live persistence.
-2. **User authentication** — connect login and sign-up to a real auth system (JWT or Firebase Auth) with secure password hashing and token storage.
+1. **Backend integration** — implement a REST API (Node.js/Express) and database (MySQL) to replace all static/mock data with live persistence.
+2. **User authentication** — connect login and sign-up to a real auth system with secure password hashing and token storage.
 3. **Study session persistence** — save logged sessions to the database and display real history on the Profile screen.
 4. **Goal tracking** — persist goals to the backend and update completion status.
 5. **Community feed** — connect posts, likes, and comments to live data.
 6. **Friends system** — implement friend requests and activity feeds backed by the database.
 7. **Achievement logic** — implement criteria checks that award badges based on real user activity data.
 8. **Testing** — add unit and integration tests for critical user flows.
+9. **Design Polishing** - complete polished designs and updates to fully reflect Figma prototype
 
 ---
 
@@ -147,7 +146,7 @@ This development phase focused on completing the full user-facing experience of 
 
 The login and account creation experience includes complete input validation and a smooth flow into the main application. The Pomodoro timer provides a structured focus experience, the achievement system tracks progress toward academic milestones, and the community feed supports social engagement between students.
 
-As is common in software development, connecting the user-facing experience to a live server involves architectural decisions that take time to get right. During this phase, the team made the deliberate choice to ensure the frontend was complete and high quality before introducing backend complexity. This approach ensures that when server integration is implemented in the next phase, it can be done cleanly without disrupting the user experience. Live data features — persistent accounts, real-time social interactions, and cloud-synced study data — are the focus of our next development phase.
+As is common in software development, connecting the user-facing experience to a live server involves architectural decisions that take time to get right. During this phase, the team made the deliberate choice to ensure the frontend was complete and high quality before introducing backend complexity. This approach ensures that when server integration is implemented in the next phase, it can be done cleanly without disrupting the user experience. Live data features, persistent accounts, real-time social interactions, and cloud-synced study data, are the focus of our next development phase.
 
 We are confident in the quality of what has been built and look forward to bringing the full connected experience to users in our final increment.
 
@@ -160,4 +159,4 @@ The Trajectory Development Team
 
 ## Link to Video
 
-[Paste video link here — host on YouTube (unlisted) or Google Drive with shared access]
+[https://canva.link/8yuyh01jnrtn8c3](https://canva.link/8yuyh01jnrtn8c3)

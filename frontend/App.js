@@ -172,6 +172,7 @@ export default function App() {
           <Stack.Screen name="Onboarding" component={GoalSettingScreen} />
         ) : null}
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Community" component={CommunityScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
