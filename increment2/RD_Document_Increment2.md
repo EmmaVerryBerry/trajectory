@@ -5,7 +5,7 @@ Group 8 | Version 2.0 | Authors: Hailie Tucker, Emma Berry, Caitlin O'Donnell, J
 
 ## Overview
 
-Trajectory is a mobile application meant to bridge the gap between academic growth and social accountability. It functions by allowing users to set study goals, log sessions, and track progress over time using a structured timer system. Unlike apps that focus purely on passive habit tracking, Trajectory incorporates gamification elements — users can unlock achievements, earn badges, and compete on leaderboards with friends. The interface follows a consistent dark-theme visual language throughout and is designed to be as simple and intuitive as possible.
+Trajectory is a mobile application meant to bridge the gap between academic growth and social accountability. It functions by allowing users to set study goals, log sessions, and track progress over time using a structured timer system. Unlike apps that focus purely on passive habit tracking, Trajectory incorporates gamification elements users can unlock achievements, earn badges, and compete on leaderboards with friends. The interface follows a consistent dark-theme visual language throughout and is designed to be as simple and intuitive as possible.
 
 This version reflects the completed frontend implementation across all screens, an updated navigation architecture, and a refined set of requirements based on development progress in Increment 2.
 
@@ -37,9 +37,15 @@ This version reflects the completed frontend implementation across all screens, 
 
 ---
 
+## Figma Design
+
+**Figma File:** [Trajectory – Figma Design](https://www.figma.com/design/CSUlJeNtNKxdKE7NkYVlq2/trajectory?node-id=9-255&t=By26rfgaF4xFXliV-1)
+
+---
+
 ## Use Case Diagram
 
-> [Insert Use Case Diagram here]
+![Use Case Diagram](use_case_diagram.png)
 
 The diagram includes the following use cases: Register Account, Log In, Set Goal, Log Study Session, Run Pomodoro Timer, View Achievements, Add Friend, View Community Feed, Create Post, Like/Comment on Post, View Profile, Edit Profile. All use cases except Register and Log In include Log In as a dependency.
 

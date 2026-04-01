@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { colors, fontSizes, spacing, borderRadius } from '../constants';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   // Dynamic greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -105,7 +105,7 @@ export default function HomeScreen() {
               />
               <Text style={styles.leaderboardTitle}>LEADERBOARD</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Community')}>
               <Text style={styles.viewAllText}>View All →</Text>
             </TouchableOpacity>
           </View>
