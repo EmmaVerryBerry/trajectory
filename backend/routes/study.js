@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { updateStreak } = require('../utils/streak');
+const { checkAndUnlockAchievements } = require('../utils/achievements');
 
 // POST /api/study/sessions
 router.post('/sessions', async (req, res) => {
