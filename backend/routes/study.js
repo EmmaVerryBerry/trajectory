@@ -38,6 +38,7 @@ router.post('/sessions', async (req, res) => {
     );
 
     await updateStreak(user_id);
+    await checkAndUnlockAchievements(user_id);
 
     const [rows] = await db.execute(
       `SELECT * FROM study_sessions WHERE session_id = ?`,
