@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,27 @@ import {
   StatusBar,
 } from 'react-native';
 import { colors, fontSizes, spacing, borderRadius } from '../constants';
+import { studyAPI, socialAPI, usersAPI } from '../services/api';
 
 export default function HomeScreen({ navigation }) {
-  // Dynamic greeting based on time of day
+  const [streak, setStreak] = useState({ currentStreak: 0 });
+  const [stats, setStats] = useState({ totalHours: 0, achievements: 0, weeklyHours: 0 });
+  const [leaderboardData, setLeaderboardData] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const [streakData, statsData, lbData] = await Promise.all([
+        studyAPI.getStreak(1),
+        usersAPI.getStats(1),
+        socialAPI.getLeaderboard(1),
+      ]);
+      setStreak(streakData);
+      setStats(statsData);
+      setLeaderboardData(lbData.slice(0, 3));
+    };
+    loadData();
+  }, []);
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -20,12 +38,11 @@ export default function HomeScreen({ navigation }) {
     return "Good evening";
   };
 
-  // Mock data for leaderboard
-  const leaderboardData = [
-    { id: 1, rank: 1, initials: "ST", name: "StudyBuddy23", time: "28h this week", points: 12 },
-    { id: 2, rank: 2, initials: "MA", name: "MathWhiz", time: "35h this week", points: 8 },
-    { id: 3, rank: 3, initials: "CO", name: "CodeMaster", time: "42h this week", points: 15 }
-  ];
+  const formatWeeklyHours = (hours) => {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
 
   return (
     <View style={styles.container}>
@@ -60,7 +77,7 @@ export default function HomeScreen({ navigation }) {
           </View>
           <View style={styles.streakContent}>
             <Text style={styles.streakLabel}>Current Streak</Text>
-            <Text style={styles.streakCount}>3 days</Text>
+            <Text style={styles.streakCount}>{streak.currentStreak} days</Text>
           </View>
           <Text style={styles.streakMessage}>Keep it up!</Text>
         </TouchableOpacity>
@@ -76,7 +93,7 @@ export default function HomeScreen({ navigation }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>3h 20m</Text>
+            <Text style={styles.statValue}>{formatWeeklyHours(stats.weeklyHours)}</Text>
             <Text style={styles.statLabel}>This Week</Text>
           </View>
 
@@ -89,7 +106,7 @@ export default function HomeScreen({ navigation }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>1</Text>
+            <Text style={styles.statValue}>{stats.achievements}</Text>
             <Text style={styles.statLabel}>Achievements</Text>
           </View>
         </View>
@@ -110,18 +127,18 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {leaderboardData.map((user) => (
+          {leaderboardData.map((user, index) => (
             <View key={user.id} style={styles.leaderboardItem}>
               <View style={styles.leaderboardLeft}>
                 <View style={styles.rankBadge}>
-                  <Text style={styles.rankNumber}>{user.rank}</Text>
+                  <Text style={styles.rankNumber}>{index + 1}</Text>
                 </View>
                 <View style={styles.avatarCircle}>
                   <Text style={styles.avatarInitials}>{user.initials}</Text>
                 </View>
                 <View style={styles.userInfo}>
-                  <Text style={styles.userName}>{user.name}</Text>
-                  <Text style={styles.userTime}>{user.time}</Text>
+                  <Text style={styles.userName}>{user.username}</Text>
+                  <Text style={styles.userTime}>{user.hours} this week</Text>
                 </View>
               </View>
               <View style={styles.pointsBadge}>
@@ -130,7 +147,7 @@ export default function HomeScreen({ navigation }) {
                   style={styles.pointsIcon}
                   resizeMode="contain"
                 />
-                <Text style={styles.pointsText}>{user.points}</Text>
+                <Text style={styles.pointsText}>{user.streak}</Text>
               </View>
             </View>
           ))}

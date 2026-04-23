@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,103 +10,35 @@ import {
   StatusBar,
 } from 'react-native';
 import { colors, spacing, borderRadius, fontSizes, fontWeights } from '../constants';
-
-// Mock achievements data
-const MOCK_ACHIEVEMENTS = [
-  {
-    id: 1,
-    name: 'First Step',
-    description: 'Complete first study session',
-    icon: '✅',
-    progress: 100,
-    unlocked: true,
-    category: 'milestone',
-  },
-  {
-    id: 2,
-    name: 'Week Warrior',
-    description: 'Study 7 days in a row',
-    icon: '🔥',
-    progress: 57,
-    unlocked: false,
-    category: 'streak',
-  },
-  {
-    id: 3,
-    name: 'Time Master',
-    description: 'Log 25 hours total',
-    icon: '⏰',
-    progress: 68,
-    unlocked: false,
-    category: 'hours',
-  },
-  {
-    id: 4,
-    name: 'Early Bird',
-    description: 'Start session before 8am',
-    icon: '🌅',
-    progress: 100,
-    unlocked: true,
-    category: 'time',
-  },
-  {
-    id: 5,
-    name: 'Night Owl',
-    description: 'Study past midnight',
-    icon: '🌙',
-    progress: 0,
-    unlocked: false,
-    category: 'time',
-  },
-  {
-    id: 6,
-    name: 'Focus King',
-    description: 'Complete 10 pomodoros',
-    icon: '👑',
-    progress: 80,
-    unlocked: false,
-    category: 'focus',
-  },
-  {
-    id: 7,
-    name: 'Social Butterfly',
-    description: 'Add 5 friends',
-    icon: '🦋',
-    progress: 40,
-    unlocked: false,
-    category: 'social',
-  },
-  {
-    id: 8,
-    name: 'Community Leader',
-    description: 'Get 50 likes on posts',
-    icon: 'P',
-    progress: 22,
-    unlocked: false,
-    category: 'community',
-  },
-];
+import { achievementsAPI } from '../services/api';
 
 export default function AchievementsScreen() {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [achievements, setAchievements] = useState([]);
 
-  // Filter achievements based on active filter
+  useEffect(() => {
+    const loadAchievements = async () => {
+      const data = await achievementsAPI.getAll();
+      setAchievements(data);
+    };
+    loadAchievements();
+  }, []);
+
   const getFilteredAchievements = () => {
     switch (activeFilter) {
       case 'locked':
-        return MOCK_ACHIEVEMENTS.filter((a) => !a.unlocked);
+        return achievements.filter((a) => !a.unlocked);
       case 'unlocked':
-        return MOCK_ACHIEVEMENTS.filter((a) => a.unlocked);
+        return achievements.filter((a) => a.unlocked);
       default:
-        return MOCK_ACHIEVEMENTS;
+        return achievements;
     }
   };
 
   const filteredAchievements = getFilteredAchievements();
 
-  // Calculate statistics
-  const unlockedCount = MOCK_ACHIEVEMENTS.filter((a) => a.unlocked).length;
-  const totalCount = MOCK_ACHIEVEMENTS.length;
+  const unlockedCount = achievements.filter((a) => a.unlocked).length;
+  const totalCount = achievements.length;
 
   return (
     <View style={styles.container}>
