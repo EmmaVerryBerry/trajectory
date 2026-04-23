@@ -156,7 +156,9 @@ export default function App() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0A1628' }} />
+    );
   }
 
   return (

@@ -12,6 +12,7 @@ import { colors, fontSizes, borderRadius, spacing, fontWeights } from '../consta
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Card from '../components/common/Card';
+import { studyAPI } from '../services/api';
 
 export default function LogSessionScreen() {
   const [subject, setSubject] = useState('');
@@ -26,35 +27,12 @@ export default function LogSessionScreen() {
     loadRecentSessions();
   }, []);
 
-  const loadRecentSessions = () => {
-    // Mock data for recent sessions - in production, fetch from API
-    const mockSessions = [
-      {
-        id: 1,
-        subject: 'Calculus II',
-        duration: 120, // minutes
-        date: new Date(Date.now() - 86400000).toISOString(),
-        notes: 'Integration techniques',
-      },
-      {
-        id: 2,
-        subject: 'Physics',
-        duration: 90,
-        date: new Date(Date.now() - 172800000).toISOString(),
-        notes: 'Thermodynamics chapter review',
-      },
-      {
-        id: 3,
-        subject: 'Chemistry',
-        duration: 60,
-        date: new Date(Date.now() - 259200000).toISOString(),
-        notes: 'Lab report',
-      },
-    ];
-    setSessions(mockSessions);
+  const loadRecentSessions = async () => {
+    const data = await studyAPI.getSessions(1);
+    setSessions(data);
   };
 
-  const handleSaveSession = () => {
+  const handleSaveSession = async () => {
     if (!subject.trim()) {
       alert('Please enter a subject or course name');
       return;
@@ -75,11 +53,9 @@ export default function LogSessionScreen() {
       notes: notes.trim(),
     };
 
-    // Add to sessions list
-    setSessions([newSession, ...sessions.slice(0, 2)]);
-
-    // TODO: Save to API
-    console.log('Saving session:', newSession);
+    // Save via API
+    const saved = await studyAPI.logSession(newSession);
+    setSessions([saved, ...sessions.slice(0, 2)]);
 
     // Reset form
     setSubject('');

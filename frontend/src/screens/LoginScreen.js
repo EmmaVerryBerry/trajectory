@@ -30,12 +30,6 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    // Temporary hardcoded login for testing
-    if (email === 'tester@gmail.com' && password === 'tester') {
-      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
-      return;
-    }
-
     setLoading(true);
     try {
       await authAPI.login(email, password);

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Button, Card } from '../components/common';
 import { colors, fontSizes, spacing, borderRadius, sizes, fontWeights, fontFamilies } from '../constants';
+import { goalsAPI } from '../services/api';
 
 export default function GoalSettingScreen({ navigation }) {
   // State Management
@@ -76,7 +77,7 @@ export default function GoalSettingScreen({ navigation }) {
   };
 
   // Handle save
-  const handleSave = () => {
+  const handleSave = async () => {
     const goalData = {
       creditHours,
       intensityLevel,
@@ -84,8 +85,7 @@ export default function GoalSettingScreen({ navigation }) {
       weeklyTarget: calculations.weeklyTarget,
       dailyHours: calculations.dailyHours,
     };
-    console.log('Saving goals:', goalData);
-    // Navigate or save to context/Redux
+    await goalsAPI.create(goalData);
     if (navigation) {
       navigation.navigate('Home');
     }

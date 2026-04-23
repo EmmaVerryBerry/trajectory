@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Card from '../components/common/Card';
 import { colors, fontSizes, borderRadius, spacing, sizes, fontWeights } from '../constants';
+import { usersAPI, authAPI } from '../services/api';
 
 export default function ProfileScreen() {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -32,6 +33,20 @@ export default function ProfileScreen() {
   // Edit mode state
   const [editData, setEditData] = useState({ ...userData });
 
+  // Load profile data on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      const [profile, stats] = await Promise.all([
+        usersAPI.getProfile(1),
+        usersAPI.getStats(1),
+      ]);
+      const merged = { ...userData, ...profile, totalHours: stats.totalHours, streak: stats.streak, achievements: stats.achievements };
+      setUserData(merged);
+      setEditData(merged);
+    };
+    loadProfile();
+  }, []);
+
   // Notification settings
   const [notifications, setNotifications] = useState({
     studyReminders: true,
@@ -47,7 +62,8 @@ export default function ProfileScreen() {
     language: 'English',
   });
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
+    await usersAPI.updateProfile(1, editData);
     setUserData({ ...editData });
     setIsEditMode(false);
   };
@@ -58,8 +74,8 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout functionality
-    console.log('Logout pressed');
+    authAPI.logout();
+    console.log('Logged out');
   };
 
   const toggleNotification = (key) => {
