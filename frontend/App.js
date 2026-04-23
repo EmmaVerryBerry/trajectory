@@ -146,7 +146,6 @@ export default function App() {
   });
 
   // Auth and onboarding state
-  // TODO: Replace with actual authentication logic (AsyncStorage, Context, etc.)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
@@ -179,13 +178,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  // Tab navigation styles
   tabIcon: {
     width: 24,
     height: 24,
   },
-
-  // Start button (center) styles
   startButtonContainer: {
     marginTop: -20,
   },
@@ -193,7 +189,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#6366F1', // Purple/blue color for Start button
+    backgroundColor: '#6366F1',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#6366F1',
