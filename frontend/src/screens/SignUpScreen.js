@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input } from '../components/common';
 import { colors, fontSizes, spacing, borderRadius } from '../constants';
+import { authAPI } from '../services/api';
 
 export default function SignUpScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -19,10 +21,11 @@ export default function SignUpScreen({ navigation }) {
   const [university, setUniversity] = useState('');
   const [major, setMajor] = useState('');
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const newErrors = {};
     if (!username) newErrors.username = 'Username is required';
     if (!email) newErrors.email = 'Email is required';
@@ -37,8 +40,17 @@ export default function SignUpScreen({ navigation }) {
       return;
     }
 
-    // TODO: replace with real auth — bypassing to main app for now
-    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    setLoading(true);
+    try {
+      await authAPI.register(username, email, password, university, major);
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    } catch (error) {
+      const msg = error.response?.data?.error || 'Could not connect to server';
+      Alert.alert('Sign Up Failed', msg);
+      setErrors({ form: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,6 +78,12 @@ export default function SignUpScreen({ navigation }) {
           <Text style={styles.headingText}>Create Account</Text>
           <Text style={styles.subtitleText}>Begin your journey</Text>
 
+          {errors.form && (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorText}>{errors.form}</Text>
+            </View>
+          )}
+
           <View style={styles.form}>
             <Input
               label="Username"
@@ -77,6 +95,7 @@ export default function SignUpScreen({ navigation }) {
               placeholder="Enter username"
               autoCapitalize="none"
               error={errors.username}
+              editable={!loading}
             />
 
             <Input
@@ -90,6 +109,7 @@ export default function SignUpScreen({ navigation }) {
               keyboardType="email-address"
               autoCapitalize="none"
               error={errors.email}
+              editable={!loading}
             />
 
             <Input
@@ -103,6 +123,7 @@ export default function SignUpScreen({ navigation }) {
               secureTextEntry
               autoCapitalize="none"
               error={errors.password}
+              editable={!loading}
             />
 
             <Input
@@ -115,6 +136,7 @@ export default function SignUpScreen({ navigation }) {
               placeholder="Enter your university"
               autoCapitalize="words"
               error={errors.university}
+              editable={!loading}
             />
 
             <Input
@@ -127,16 +149,19 @@ export default function SignUpScreen({ navigation }) {
               placeholder="Enter your major"
               autoCapitalize="words"
               error={errors.major}
+              editable={!loading}
             />
 
             <Button
-              title="Launch →"
+              title={loading ? 'Creating account...' : 'Launch →'}
               onPress={handleSignUp}
               style={styles.signUpButton}
+              disabled={loading}
             />
 
             <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
+              disabled={loading}
               style={styles.logInContainer}
             >
               <Text style={styles.logInText}>
@@ -161,8 +186,6 @@ const styles = StyleSheet.create({
     paddingTop: 56,
     paddingBottom: spacing['3xl'],
   },
-
-  // Header
   header: {
     alignItems: 'center',
     marginBottom: spacing['3xl'],
@@ -195,8 +218,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.xs,
   },
-
-  // Form
   formContainer: {
     flex: 1,
   },
@@ -211,6 +232,19 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.base,
     color: 'rgba(255,255,255,0.45)',
     marginBottom: spacing.xl,
+  },
+  errorBanner: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    padding: spacing.base,
+    borderRadius: borderRadius.sm,
+    marginBottom: spacing.base,
+  },
+  errorText: {
+    fontFamily: 'SpaceGrotesk-Regular',
+    fontSize: fontSizes.sm,
+    color: '#FCA5A5',
   },
   form: {
     gap: spacing.sm,

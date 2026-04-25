@@ -7,17 +7,20 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input } from '../components/common';
 import { colors, fontSizes, spacing, borderRadius } from '../constants';
+import { authAPI } from '../services/api';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const newErrors = {};
     if (!email) newErrors.email = 'Email is required';
     if (!password) newErrors.password = 'Password is required';
@@ -27,8 +30,17 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    // TODO: replace with real auth — bypassing to main app for now
-    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    setLoading(true);
+    try {
+      await authAPI.login(email, password);
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    } catch (error) {
+      const msg = error.response?.data?.error || 'Could not connect to server';
+      Alert.alert('Login Failed', msg);
+      setErrors({ form: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,6 +68,12 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.welcomeText}>Welcome Back</Text>
           <Text style={styles.subtitleText}>Continue your mission</Text>
 
+          {errors.form && (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorText}>{errors.form}</Text>
+            </View>
+          )}
+
           <View style={styles.form}>
             <Input
               label="Email"
@@ -68,6 +86,7 @@ export default function LoginScreen({ navigation }) {
               keyboardType="email-address"
               autoCapitalize="none"
               error={errors.email}
+              editable={!loading}
             />
 
             <Input
@@ -81,16 +100,19 @@ export default function LoginScreen({ navigation }) {
               secureTextEntry
               autoCapitalize="none"
               error={errors.password}
+              editable={!loading}
             />
 
             <Button
-              title="Enter →"
+              title={loading ? 'Logging in...' : 'Enter →'}
               onPress={handleLogin}
               style={styles.loginButton}
+              disabled={loading}
             />
 
             <TouchableOpacity
               onPress={() => navigation.navigate('SignUp')}
+              disabled={loading}
               style={styles.signUpContainer}
             >
               <Text style={styles.signUpText}>
@@ -115,8 +137,6 @@ const styles = StyleSheet.create({
     paddingTop: 72,
     paddingBottom: spacing['3xl'],
   },
-
-  // Header
   header: {
     alignItems: 'center',
     marginBottom: spacing['4xl'],
@@ -149,8 +169,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.xs,
   },
-
-  // Form
   formContainer: {
     flex: 1,
   },
@@ -165,6 +183,19 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.base,
     color: 'rgba(255,255,255,0.45)',
     marginBottom: spacing['2xl'],
+  },
+  errorBanner: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    padding: spacing.base,
+    borderRadius: borderRadius.sm,
+    marginBottom: spacing.base,
+  },
+  errorText: {
+    fontFamily: 'SpaceGrotesk-Regular',
+    fontSize: fontSizes.sm,
+    color: '#FCA5A5',
   },
   form: {
     gap: spacing.base,

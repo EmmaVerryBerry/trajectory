@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
+
+import { socialAPI } from '../services/api';
 
 // Color Constants
 const COLORS = {
@@ -31,46 +33,23 @@ const COLORS = {
 export default function FriendsScreen() {
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [friendsData, setFriendsData] = useState([]);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [activityData, setActivityData] = useState([]);
 
-  // Mock data for All Friends tab
-  const friendsData = [
-    { id: 1, initials: 'SB', username: 'StudyBuddy23', hours: '28h', avatar: null },
-    { id: 2, initials: 'MW', username: 'MathWhiz', hours: '35h', avatar: null },
-    { id: 3, initials: 'CM', username: 'CodeMaster', hours: '42h', avatar: null },
-    { id: 4, initials: 'BG', username: 'BookGeek', hours: '18h', avatar: null },
-    { id: 5, initials: 'FP', username: 'FocusPro', hours: '31h', avatar: null },
-    { id: 6, initials: 'ST', username: 'StudyTime', hours: '22h', avatar: null },
-    { id: 7, initials: 'NL', username: 'NightOwl', hours: '45h', avatar: null },
-    { id: 8, initials: 'EA', username: 'EarlyBird', hours: '29h', avatar: null },
-  ];
-
-  // Mock data for Leaderboard tab
-  const leaderboardData = [
-    { id: 1, rank: 1, initials: 'NL', username: 'NightOwl', hours: '45h', streak: 15, isCurrentUser: false },
-    { id: 2, rank: 2, initials: 'CM', username: 'CodeMaster', hours: '42h', streak: 12, isCurrentUser: false },
-    { id: 3, rank: 3, initials: 'MW', username: 'MathWhiz', hours: '35h', streak: 8, isCurrentUser: false },
-    { id: 4, rank: 4, initials: 'FP', username: 'FocusPro', hours: '31h', streak: 10, isCurrentUser: false },
-    { id: 5, rank: 5, initials: 'EA', username: 'EarlyBird', hours: '29h', streak: 7, isCurrentUser: true },
-    { id: 6, rank: 6, initials: 'SB', username: 'StudyBuddy23', hours: '28h', streak: 5, isCurrentUser: false },
-    { id: 7, rank: 7, initials: 'ST', username: 'StudyTime', hours: '22h', streak: 9, isCurrentUser: false },
-    { id: 8, rank: 8, initials: 'BG', username: 'BookGeek', hours: '18h', streak: 3, isCurrentUser: false },
-    { id: 9, rank: 9, initials: 'QR', username: 'QuickRead', hours: '15h', streak: 6, isCurrentUser: false },
-    { id: 10, rank: 10, initials: 'LP', username: 'LatePro', hours: '12h', streak: 2, isCurrentUser: false },
-  ];
-
-  // Mock data for Activity Feed tab
-  const activityData = [
-    { id: 1, type: 'session', username: 'CodeMaster', detail: 'completed a 2h study session', time: '2h ago' },
-    { id: 2, type: 'achievement', username: 'MathWhiz', detail: 'earned "Week Warrior" achievement', time: '3h ago' },
-    { id: 3, type: 'streak', username: 'NightOwl', detail: 'is on a 7-day streak!', time: '5h ago' },
-    { id: 4, type: 'session', username: 'StudyBuddy23', detail: 'completed a 1.5h study session', time: '6h ago' },
-    { id: 5, type: 'achievement', username: 'FocusPro', detail: 'earned "Focus Master" achievement', time: 'Yesterday' },
-    { id: 6, type: 'streak', username: 'BookGeek', detail: 'is on a 10-day streak!', time: 'Yesterday' },
-    { id: 7, type: 'session', username: 'EarlyBird', detail: 'completed a 3h study session', time: 'Yesterday' },
-    { id: 8, type: 'session', username: 'StudyTime', detail: 'completed a 2.5h study session', time: '2 days ago' },
-    { id: 9, type: 'achievement', username: 'NightOwl', detail: 'earned "Marathon" achievement', time: '2 days ago' },
-    { id: 10, type: 'streak', username: 'CodeMaster', detail: 'is on a 12-day streak!', time: '3 days ago' },
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      const [friends, leaderboard, activity] = await Promise.all([
+        socialAPI.getFriends(1),
+        socialAPI.getLeaderboard(1),
+        socialAPI.getActivity(1),
+      ]);
+      setFriendsData(friends);
+      setLeaderboardData(leaderboard);
+      setActivityData(activity);
+    };
+    loadData();
+  }, []);
 
   const getRankBadgeColor = (rank) => {
     if (rank === 1) return COLORS.gold;
@@ -89,9 +68,9 @@ export default function FriendsScreen() {
   const getActivityIcon = (type) => {
     switch (type) {
       case 'session':
-        return '=Ú';
+        return '=ï¿½';
       case 'achievement':
-        return '<Æ';
+        return '<ï¿½';
       case 'streak':
         return '=%';
       default:
@@ -110,7 +89,8 @@ export default function FriendsScreen() {
     >
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>=</Text>
+        <Text style={styles.searchIcon}>=
+</Text>
         <TextInput
           style={styles.searchInput}
           placeholder="Search friends..."

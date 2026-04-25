@@ -17,13 +17,21 @@ const MODES = {
   SHORT_BREAK: { name: 'Short Break', duration: 5 * 60 },
   LONG_BREAK: { name: 'Long Break', duration: 15 * 60 },
 };
+const SOUND_URLS = {
+  lofi: 'https://archive.org/download/chill-lofi-music-relax-study/Dontcry%20x%20Glimlip%20-%20Jiro%20Dreams.mp3',
+  rain: 'https://archive.org/download/ambientbytes2/06-Summer%20Rain%20Shower.mp3',
+  waves: 'https://archive.org/download/ocean-sea-sounds/Ocean%20Sound%20Nature%20Sounds.mp3',
+  thunder: 'https://archive.org/download/ambientbytes2/09-Low%20Rumble%20Of%20Thunder.mp3',
+  fire: 'https://archive.org/download/relaxingsounds/FIRE%202%203h%20Blazing%20Fireplace.mp3',
+};
+
 const SOUNDS = [
-    { id: 'none', name: 'None', icon: '' },
-    { id: 'lofi', name: 'Lofi', icon: '' },
-    { id: 'rain', name: 'Rain', icon: '' },
-    { id: 'waves', name: 'Waves', icon: '' },
-    { id: 'thunder', name: 'Thunder', icon: '' },
-    { id: 'fire', name: 'Fire', icon: '' },
+    { id: 'none', name: 'None', icon: '🔇' },
+    { id: 'lofi', name: 'Lofi', icon: '🎵' },
+    { id: 'rain', name: 'Rain', icon: '🌧️' },
+    { id: 'waves', name: 'Waves', icon: '🌊' },
+    { id: 'thunder', name: 'Thunder', icon: '⛈️' },
+    { id: 'fire', name: 'Fire', icon: '🔥' },
 ];
 
 const STUDY_TIPS = [
@@ -151,16 +159,27 @@ export default function PomodoroScreen() {
 
   const playAmbientSound = async () => {
     try {
-      // In production, load actual sound files
-      // For now, this is a placeholder
-      console.log(`Playing ${selectedSound} sound`);
+      // Stop any existing sound first
+      if (sound) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        setSound(null);
+      }
 
-      // Example of how to load and play sound:
-      // const { sound: newSound } = await Audio.Sound.createAsync(
-      //   require(`../assets/sounds/${selectedSound}.mp3`),
-      //   { isLooping: true, shouldPlay: true }
-      // );
-      // setSound(newSound);
+      const url = SOUND_URLS[selectedSound];
+      if (!url) return;
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+      });
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: url },
+        { isLooping: true, shouldPlay: true, volume: 0.5 }
+      );
+      setSound(newSound);
     } catch (error) {
       console.error('Error playing sound:', error);
     }
@@ -293,7 +312,31 @@ export default function PomodoroScreen() {
                   styles.soundOption,
                   selectedSound === soundOption.id && styles.soundOptionActive,
                 ]}
-                onPress={() => setSelectedSound(soundOption.id)}
+                onPress={async () => {
+                  setSelectedSound(soundOption.id);
+                  // If timer is running, switch the sound immediately
+                  if (isRunning) {
+                    if (sound) {
+                      await sound.stopAsync();
+                      await sound.unloadAsync();
+                      setSound(null);
+                    }
+                    if (soundOption.id !== 'none') {
+                      const url = SOUND_URLS[soundOption.id];
+                      if (url) {
+                        try {
+                          const { sound: newSound } = await Audio.Sound.createAsync(
+                            { uri: url },
+                            { isLooping: true, shouldPlay: true, volume: 0.5 }
+                          );
+                          setSound(newSound);
+                        } catch (error) {
+                          console.error('Error switching sound:', error);
+                        }
+                      }
+                    }
+                  }
+                }}
               >
                 <Text style={styles.soundIcon}>{soundOption.icon}</Text>
                 <Text
