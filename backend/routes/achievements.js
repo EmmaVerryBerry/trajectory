@@ -21,7 +21,7 @@ router.get('/user/:userId', async (req, res) => {
 
     const [rows] = await db.execute(
       `
-      SELECT a.*
+      SELECT a.*, ua.earned_at
       FROM achievements a
       JOIN user_achievements ua
         ON a.achievement_id = ua.achievement_id
@@ -49,7 +49,6 @@ router.post('/unlock', async (req, res) => {
       });
     }
 
-    // check if already unlocked
     const [existing] = await db.execute(
       `
       SELECT * FROM user_achievements
@@ -59,12 +58,11 @@ router.post('/unlock', async (req, res) => {
     );
 
     if (existing.length > 0) {
-      return res.status(400).json({
-        error: 'Achievement already unlocked'
+      return res.json({
+        message: 'Achievement already unlocked'
       });
     }
 
-    // insert
     await db.execute(
       `
       INSERT INTO user_achievements (user_id, achievement_id)
@@ -72,6 +70,18 @@ router.post('/unlock', async (req, res) => {
       `,
       [user_id, achievement_id]
     );
+
+    try {
+      await db.execute(
+        `
+        INSERT INTO activity_feed (user_id, activity_type, activity_text)
+        VALUES (?, ?, ?)
+        `,
+        [user_id, 'achievement', 'earned an achievement']
+      );
+    } catch (activityError) {
+      console.log('Activity feed insert skipped:', activityError.message);
+    }
 
     return res.json({
       message: 'Achievement unlocked successfully'

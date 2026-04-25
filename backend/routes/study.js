@@ -87,7 +87,11 @@ router.get('/progress/:userId', async (req, res) => {
     );
 
     if (goals.length === 0) {
-      return res.status(404).json({ error: 'No active goal found for this user' });
+      return res.json({
+        total_hours_this_week: 0,
+        weekly_goal_hours: 0,
+        completion_percentage: 0
+      });
     }
 
     const [sessions] = await db.execute(
@@ -128,7 +132,12 @@ router.get('/streak/:userId', async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'No streak found for this user' });
+      return res.json({
+        current_streak: 0,
+        longest_streak: 0,
+        last_study_date: null,
+        streak_start_date: null
+      });
     }
 
     return res.json(rows[0]);

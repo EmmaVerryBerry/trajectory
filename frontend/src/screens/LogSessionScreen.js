@@ -6,13 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Platform,
 } from 'react-native';
-import { colors, fontSizes, borderRadius, spacing, fontWeights } from '../constants';
+import { colors, fontSizes, borderRadius, spacing } from '../constants';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Card from '../components/common/Card';
-import { studyAPI } from '../services/api';
+import { studyAPI, authAPI } from '../services/api';
 
 export default function LogSessionScreen() {
   const [subject, setSubject] = useState('');
@@ -23,12 +22,17 @@ export default function LogSessionScreen() {
   const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
-    // Load recent sessions from storage or API
     loadRecentSessions();
   }, []);
 
+  const getUserId = async () => {
+    const user = await Promise.resolve(authAPI.getStoredUser());
+    return user?.userId || user?.user_id || 1;
+  };
+
   const loadRecentSessions = async () => {
-    const data = await studyAPI.getSessions(1);
+    const userId = await getUserId();
+    const data = await studyAPI.getSessions(userId);
     setSessions(data);
   };
 
@@ -45,19 +49,19 @@ export default function LogSessionScreen() {
       return;
     }
 
+    const userId = await getUserId();
+
     const newSession = {
-      id: Date.now(),
+      user_id: userId,
       subject: subject.trim(),
-      duration: totalMinutes,
-      date: selectedDate.toISOString(),
+      session_date: selectedDate.toISOString().split('T')[0],
+      duration_minutes: totalMinutes,
       notes: notes.trim(),
     };
 
-    // Save via API
-    const saved = await studyAPI.logSession(newSession);
+    const saved = await studyAPI.createSession(newSession);
     setSessions([saved, ...sessions.slice(0, 2)]);
 
-    // Reset form
     setSubject('');
     setHours('0');
     setMinutes('0');
@@ -82,16 +86,14 @@ export default function LogSessionScreen() {
     }
   };
 
-  const formatDuration = (minutes) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hrs > 0 && mins > 0) {
-      return `${hrs}h ${mins}m`;
-    } else if (hrs > 0) {
-      return `${hrs}h`;
-    } else {
-      return `${mins}m`;
-    }
+  const formatDuration = (duration) => {
+    const safeMinutes = Number(duration || 0);
+    const hrs = Math.floor(safeMinutes / 60);
+    const mins = safeMinutes % 60;
+
+    if (hrs > 0 && mins > 0) return `${hrs}h ${mins}m`;
+    if (hrs > 0) return `${hrs}h`;
+    return `${mins}m`;
   };
 
   const incrementTime = (type) => {
@@ -140,7 +142,6 @@ export default function LogSessionScreen() {
         <Text style={styles.header}>Log Session</Text>
 
         <Card style={styles.formCard}>
-          {/* Subject Input */}
           <Input
             label="Subject/Course"
             value={subject}
@@ -149,11 +150,9 @@ export default function LogSessionScreen() {
             autoCapitalize="words"
           />
 
-          {/* Time Picker */}
           <View style={styles.timeSection}>
             <Text style={styles.sectionLabel}>Duration</Text>
             <View style={styles.timePickerContainer}>
-              {/* Hours Picker */}
               <View style={styles.timePicker}>
                 <TouchableOpacity
                   style={styles.timeButton}
@@ -177,7 +176,6 @@ export default function LogSessionScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* Minutes Picker */}
               <View style={styles.timePicker}>
                 <TouchableOpacity
                   style={styles.timeButton}
@@ -203,7 +201,6 @@ export default function LogSessionScreen() {
             </View>
           </View>
 
-          {/* Date Picker */}
           <View style={styles.dateSection}>
             <Text style={styles.sectionLabel}>Date</Text>
             <View style={styles.datePickerContainer}>
@@ -238,7 +235,6 @@ export default function LogSessionScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Notes */}
           <View style={styles.notesSection}>
             <Text style={styles.sectionLabel}>Notes (Optional)</Text>
             <TextInput
@@ -253,7 +249,6 @@ export default function LogSessionScreen() {
             />
           </View>
 
-          {/* Save Button */}
           <Button
             title="Save Session"
             onPress={handleSaveSession}
@@ -261,26 +256,31 @@ export default function LogSessionScreen() {
           />
         </Card>
 
-        {/* Recent Sessions */}
         {sessions.length > 0 && (
           <View style={styles.recentSection}>
             <Text style={styles.recentHeader}>Recent Sessions</Text>
-            {sessions.slice(0, 3).map((session) => (
-              <Card key={session.id} style={styles.sessionCard}>
-                <View style={styles.sessionHeader}>
-                  <Text style={styles.sessionSubject}>{session.subject}</Text>
-                  <Text style={styles.sessionDate}>{formatDate(session.date)}</Text>
-                </View>
-                <View style={styles.sessionDetails}>
-                  <Text style={styles.sessionDuration}>
-                    {formatDuration(session.duration)}
-                  </Text>
-                  {session.notes && (
-                    <Text style={styles.sessionNotes}>{session.notes}</Text>
-                  )}
-                </View>
-              </Card>
-            ))}
+            {sessions.slice(0, 3).map((session, index) => {
+              const sessionSubject = session.subject || 'Study Session';
+              const sessionDate = session.session_date || session.date;
+              const sessionDuration = session.duration_minutes || session.duration;
+
+              return (
+                <Card key={session.session_id || session.id || index} style={styles.sessionCard}>
+                  <View style={styles.sessionHeader}>
+                    <Text style={styles.sessionSubject}>{sessionSubject}</Text>
+                    <Text style={styles.sessionDate}>{formatDate(sessionDate)}</Text>
+                  </View>
+                  <View style={styles.sessionDetails}>
+                    <Text style={styles.sessionDuration}>
+                      {formatDuration(sessionDuration)}
+                    </Text>
+                    {session.notes && (
+                      <Text style={styles.sessionNotes}>{session.notes}</Text>
+                    )}
+                  </View>
+                </Card>
+              );
+            })}
           </View>
         )}
       </View>
