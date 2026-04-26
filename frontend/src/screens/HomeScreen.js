@@ -9,27 +9,38 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import { colors, fontSizes, spacing, borderRadius } from '../constants';
-import { studyAPI, socialAPI, usersAPI } from '../services/api';
+import { colors } from '../constants';
+import { studyAPI, socialAPI, usersAPI, authAPI } from '../services/api';
 
 export default function HomeScreen({ navigation }) {
-  const [streak, setStreak] = useState({ currentStreak: 0 });
+  const [streak, setStreak] = useState({ currentStreak: 0, current_streak: 0 });
   const [stats, setStats] = useState({ totalHours: 0, achievements: 0, weeklyHours: 0 });
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      const [streakData, statsData, lbData] = await Promise.all([
-        studyAPI.getStreak(1),
-        usersAPI.getStats(1),
-        socialAPI.getLeaderboard(1),
-      ]);
-      setStreak(streakData);
-      setStats(statsData);
-      setLeaderboardData(lbData.slice(0, 3));
-    };
     loadData();
   }, []);
+
+  const getUserId = async () => {
+    const storedUser = await Promise.resolve(authAPI.getStoredUser());
+    setUser(storedUser);
+    return storedUser?.userId || storedUser?.user_id || 1;
+  };
+
+  const loadData = async () => {
+    const userId = await getUserId();
+
+    const [streakData, statsData, lbData] = await Promise.all([
+      studyAPI.getStreak(userId),
+      usersAPI.getStats(userId),
+      socialAPI.getLeaderboard(userId),
+    ]);
+
+    setStreak(streakData);
+    setStats(statsData);
+    setLeaderboardData(lbData.slice(0, 3));
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -39,10 +50,16 @@ export default function HomeScreen({ navigation }) {
   };
 
   const formatWeeklyHours = (hours) => {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
+    const safeHours = Number(hours || 0);
+    const h = Math.floor(safeHours);
+    const m = Math.round((safeHours - h) * 60);
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   };
+
+  const currentStreak = streak.current_streak ?? streak.currentStreak ?? 0;
+  const weeklyHours = stats.weekly_hours ?? stats.weeklyHours ?? 0;
+  const achievements = stats.achievements ?? stats.achievements_count ?? 0;
+  const displayName = user?.username ? user.username.toUpperCase() : 'STUDENT';
 
   return (
     <View style={styles.container}>
@@ -52,21 +69,21 @@ export default function HomeScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.greetingContainer}>
             <Text style={styles.moonEmoji}>🌙</Text>
             <View style={styles.greetingTextContainer}>
               <Text style={styles.greetingText}>{getGreeting()}</Text>
-              <Text style={styles.welcomeText}>STUDENT!</Text>
+              <Text style={styles.welcomeText}>{displayName}!</Text>
             </View>
           </View>
           <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>U</Text>
+            <Text style={styles.avatarText}>
+              {displayName.charAt(0)}
+            </Text>
           </View>
         </View>
 
-        {/* Streak Card */}
         <TouchableOpacity style={styles.streakCard} activeOpacity={0.8}>
           <View style={styles.streakIconContainer}>
             <Image
@@ -77,14 +94,12 @@ export default function HomeScreen({ navigation }) {
           </View>
           <View style={styles.streakContent}>
             <Text style={styles.streakLabel}>Current Streak</Text>
-            <Text style={styles.streakCount}>{streak.currentStreak} days</Text>
+            <Text style={styles.streakCount}>{currentStreak} days</Text>
           </View>
           <Text style={styles.streakMessage}>Keep it up!</Text>
         </TouchableOpacity>
 
-        {/* Stats Cards Row */}
         <View style={styles.statsRow}>
-          {/* Time Tracking Card */}
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
               <Image
@@ -93,11 +108,10 @@ export default function HomeScreen({ navigation }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>{formatWeeklyHours(stats.weeklyHours)}</Text>
+            <Text style={styles.statValue}>{formatWeeklyHours(weeklyHours)}</Text>
             <Text style={styles.statLabel}>This Week</Text>
           </View>
 
-          {/* Achievements Card */}
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
               <Image
@@ -106,12 +120,11 @@ export default function HomeScreen({ navigation }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>{stats.achievements}</Text>
+            <Text style={styles.statValue}>{achievements}</Text>
             <Text style={styles.statLabel}>Achievements</Text>
           </View>
         </View>
 
-        {/* Leaderboard Section */}
         <View style={styles.leaderboardSection}>
           <View style={styles.leaderboardHeader}>
             <View style={styles.leaderboardTitleContainer}>
@@ -127,33 +140,38 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {leaderboardData.map((user, index) => (
-            <View key={user.id} style={styles.leaderboardItem}>
-              <View style={styles.leaderboardLeft}>
-                <View style={styles.rankBadge}>
-                  <Text style={styles.rankNumber}>{index + 1}</Text>
+          {leaderboardData.map((item, index) => {
+            const initials = item.initials || item.username?.slice(0, 2).toUpperCase() || 'U';
+            const hours = item.hours || `${Math.round(item.total_hours || 0)}h`;
+            const streakValue = item.streak ?? item.current_streak ?? 0;
+
+            return (
+              <View key={item.id || item.user_id || index} style={styles.leaderboardItem}>
+                <View style={styles.leaderboardLeft}>
+                  <View style={styles.rankBadge}>
+                    <Text style={styles.rankNumber}>{index + 1}</Text>
+                  </View>
+                  <View style={styles.avatarCircle}>
+                    <Text style={styles.avatarInitials}>{initials}</Text>
+                  </View>
+                  <View style={styles.userInfo}>
+                    <Text style={styles.userName}>{item.username}</Text>
+                    <Text style={styles.userTime}>{hours} this week</Text>
+                  </View>
                 </View>
-                <View style={styles.avatarCircle}>
-                  <Text style={styles.avatarInitials}>{user.initials}</Text>
-                </View>
-                <View style={styles.userInfo}>
-                  <Text style={styles.userName}>{user.username}</Text>
-                  <Text style={styles.userTime}>{user.hours} this week</Text>
+                <View style={styles.pointsBadge}>
+                  <Image
+                    source={require('../../assets/icons/flame.png')}
+                    style={styles.pointsIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.pointsText}>{streakValue}</Text>
                 </View>
               </View>
-              <View style={styles.pointsBadge}>
-                <Image
-                  source={require('../../assets/icons/flame.png')}
-                  style={styles.pointsIcon}
-                  resizeMode="contain"
-                />
-                <Text style={styles.pointsText}>{user.streak}</Text>
-              </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
-        {/* Bottom spacing for navigation */}
         <View style={{ height: 100 }} />
       </ScrollView>
     </View>
@@ -172,8 +190,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
   },
-
-  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -222,8 +238,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     lineHeight: 28,
   },
-
-  // Streak Card
   streakCard: {
     backgroundColor: '#1E293B',
     borderRadius: 24,
@@ -269,8 +283,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     marginLeft: 12,
   },
-
-  // Stats Row
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -297,7 +309,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
-    elevation: 8, // This is required for shadows to show up on Android!
+    elevation: 8,
   },
   statIcon: {
     width: 28,
@@ -320,8 +332,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
   },
-
-  // Leaderboard
   leaderboardSection: {
     marginBottom: 24,
   },

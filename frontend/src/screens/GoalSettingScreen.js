@@ -9,13 +9,12 @@ import {
   StatusBar,
 } from 'react-native';
 import { Button, Card } from '../components/common';
-import { colors, fontSizes, spacing, borderRadius, sizes, fontWeights, fontFamilies } from '../constants';
-import { goalsAPI } from '../services/api';
+import { colors, fontSizes, spacing, borderRadius, fontWeights } from '../constants';
+import { goalsAPI, authAPI } from '../services/api';
 
 export default function GoalSettingScreen({ navigation }) {
-  // State Management
   const [creditHours, setCreditHours] = useState(15);
-  const [intensityLevel, setIntensityLevel] = useState('Normal'); // 'Low', 'Normal', 'High'
+  const [difficultyLevel, setDifficultyLevel] = useState('normal');
   const [selectedDays, setSelectedDays] = useState({
     Monday: true,
     Tuesday: true,
@@ -28,33 +27,24 @@ export default function GoalSettingScreen({ navigation }) {
 
   const daysArray = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  // Calculate weekly and daily targets
   const calculations = useMemo(() => {
-    // Base calculation: 2 hours per credit
-    const baseHoursPerWeek = creditHours * 2;
-
-    // Adjust based on intensity level
-    let weeklyTarget = baseHoursPerWeek;
-    if (intensityLevel === 'Low') {
-      weeklyTarget = baseHoursPerWeek * 0.75;
-    } else if (intensityLevel === 'High') {
-      weeklyTarget = baseHoursPerWeek * 1.25;
-    }
-
-    // Count selected study days
+    const multiplier = difficultyLevel === 'hard' ? 3 : 2;
+    const weeklyTarget = creditHours * multiplier;
     const studyDaysCount = Object.values(selectedDays).filter(Boolean).length;
-
-    // Calculate daily hours
-    const dailyHours = studyDaysCount > 0 ? (weeklyTarget / studyDaysCount).toFixed(1) : 0;
+    const dailyHours = studyDaysCount > 0 ? weeklyTarget / studyDaysCount : 0;
 
     return {
-      weeklyTarget: Math.round(weeklyTarget),
-      dailyHours: parseFloat(dailyHours),
+      weeklyTarget,
+      dailyHours: Number(dailyHours.toFixed(1)),
       studyDaysCount,
     };
-  }, [creditHours, intensityLevel, selectedDays]);
+  }, [creditHours, difficultyLevel, selectedDays]);
 
-  // Toggle a study day
+  const getUserId = async () => {
+    const user = await Promise.resolve(authAPI.getStoredUser());
+    return user?.userId || user?.user_id || 1;
+  };
+
   const toggleDay = (day) => {
     setSelectedDays(prev => ({
       ...prev,
@@ -62,36 +52,38 @@ export default function GoalSettingScreen({ navigation }) {
     }));
   };
 
-  // Handle credit hours change
   const incrementCreditHours = () => {
-    setCreditHours(prev => Math.min(prev + 1, 24)); // Max 24 credits
+    setCreditHours(prev => Math.min(prev + 1, 24));
   };
 
   const decrementCreditHours = () => {
-    setCreditHours(prev => Math.max(prev - 1, 3)); // Min 3 credits
+    setCreditHours(prev => Math.max(prev - 1, 3));
   };
 
-  // Handle intensity level change
-  const selectIntensity = (level) => {
-    setIntensityLevel(level);
-  };
-
-  // Handle save
   const handleSave = async () => {
-    const goalData = {
-      creditHours,
-      intensityLevel,
-      selectedDays,
-      weeklyTarget: calculations.weeklyTarget,
-      dailyHours: calculations.dailyHours,
-    };
-    await goalsAPI.create(goalData);
+    const studyDays = daysArray.filter(day => selectedDays[day]);
+
+    if (studyDays.length === 0) {
+      alert('Please select at least one study day');
+      return;
+    }
+
+    const userId = await getUserId();
+
+    await goalsAPI.createGoal({
+      user_id: userId,
+      credit_hours: creditHours,
+      difficulty_level: difficultyLevel,
+      study_days: studyDays,
+    });
+
+    alert('Goal saved!');
+
     if (navigation) {
       navigation.navigate('Home');
     }
   };
 
-  // Handle skip
   const handleSkip = () => {
     if (navigation) {
       navigation.navigate('Home');
@@ -106,55 +98,51 @@ export default function GoalSettingScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
         <View style={styles.headerSection}>
           <Text style={styles.headerTitle}>🎯 Set Your Goals</Text>
-          <Text style={styles.headerSubtitle}>Let's plan your study schedule!</Text>
+          <Text style={styles.headerSubtitle}>Plan your study schedule</Text>
         </View>
 
-        {/* Credit Hours Card */}
         <Card style={styles.card}>
           <View style={styles.cardContent}>
             <Text style={styles.cardLabel}>Credit Hours</Text>
             <View style={styles.stepperContainer}>
-              <TouchableOpacity
-                style={styles.stepperButton}
-                onPress={decrementCreditHours}
-              >
+              <TouchableOpacity style={styles.stepperButton} onPress={decrementCreditHours}>
                 <Text style={styles.stepperButtonText}>-</Text>
               </TouchableOpacity>
+
               <Text style={styles.stepperValue}>{creditHours}</Text>
-              <TouchableOpacity
-                style={styles.stepperButton}
-                onPress={incrementCreditHours}
-              >
+
+              <TouchableOpacity style={styles.stepperButton} onPress={incrementCreditHours}>
                 <Text style={styles.stepperButtonText}>+</Text>
               </TouchableOpacity>
             </View>
           </View>
         </Card>
 
-        {/* Intensity Level Card */}
         <Card style={styles.card}>
           <View style={styles.cardContent}>
-            <Text style={styles.cardLabel}>Intensity Level</Text>
+            <Text style={styles.cardLabel}>Course Difficulty</Text>
             <View style={styles.intensityButtonsContainer}>
-              {['Low', 'Normal', 'High'].map(level => (
+              {[
+                { label: 'Normal', value: 'normal' },
+                { label: 'Hard', value: 'hard' },
+              ].map(option => (
                 <TouchableOpacity
-                  key={level}
+                  key={option.value}
                   style={[
                     styles.intensityButton,
-                    intensityLevel === level && styles.intensityButtonActive,
+                    difficultyLevel === option.value && styles.intensityButtonActive,
                   ]}
-                  onPress={() => selectIntensity(level)}
+                  onPress={() => setDifficultyLevel(option.value)}
                 >
-                  <Text style={[
-                    styles.intensityButtonText,
-                    intensityLevel === level && styles.intensityButtonTextActive,
-                  ]}>
-                    {level === 'Low' && '🔵 Low'}
-                    {level === 'Normal' && '🟡 Normal'}
-                    {level === 'High' && '🔴 High'}
+                  <Text
+                    style={[
+                      styles.intensityButtonText,
+                      difficultyLevel === option.value && styles.intensityButtonTextActive,
+                    ]}
+                  >
+                    {option.label}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -162,23 +150,20 @@ export default function GoalSettingScreen({ navigation }) {
           </View>
         </Card>
 
-        {/* Weekly Target Display - MAIN FOCAL POINT */}
         <View style={styles.weeklyTargetContainer}>
           <Text style={styles.weeklyTargetLabel}>Weekly Target</Text>
           <Text style={styles.weeklyTargetNumber}>{calculations.weeklyTarget}</Text>
           <Text style={styles.weeklyTargetUnit}>hours per week</Text>
           <Text style={styles.weeklyTargetFormula}>
-            (2h per credit × {creditHours} credits)
+            {difficultyLevel === 'hard' ? '3h' : '2h'} per credit × {creditHours} credits
           </Text>
         </View>
 
-        {/* Study Days Selection */}
         <Card style={styles.card}>
           <View style={styles.cardContent}>
             <Text style={styles.studyDaysTitle}>📅 Study Days</Text>
             <Text style={styles.studyDaysSubtitle}>Pick your study schedule</Text>
 
-            {/* Days Checkboxes */}
             <View style={styles.daysContainer}>
               {daysArray.map(day => (
                 <TouchableOpacity
@@ -194,10 +179,12 @@ export default function GoalSettingScreen({ navigation }) {
                       <Text style={styles.dayCheckboxCheck}>✓</Text>
                     )}
                   </View>
-                  <Text style={[
-                    styles.dayCheckboxText,
-                    selectedDays[day] && styles.dayCheckboxTextSelected,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.dayCheckboxText,
+                      selectedDays[day] && styles.dayCheckboxTextSelected,
+                    ]}
+                  >
                     {day}
                   </Text>
                 </TouchableOpacity>
@@ -206,13 +193,11 @@ export default function GoalSettingScreen({ navigation }) {
           </View>
         </Card>
 
-        {/* Daily Hours Display */}
         <View style={styles.dailyHoursContainer}>
           <Text style={styles.dailyHoursNumber}>{calculations.dailyHours}</Text>
-          <Text style={styles.dailyHoursLabel}>per study day</Text>
+          <Text style={styles.dailyHoursLabel}>hours per study day</Text>
         </View>
 
-        {/* Bottom Buttons Section */}
         <View style={styles.buttonsContainer}>
           <Button
             title="Skip for now"
@@ -228,7 +213,6 @@ export default function GoalSettingScreen({ navigation }) {
           />
         </View>
 
-        {/* Bottom spacing for safe area */}
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -236,252 +220,152 @@ export default function GoalSettingScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.blueBackgroundLight, // #eff6ff - Light blue background
-  },
-  scrollView: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: colors.blueBackgroundLight || '#001D3D' },
+  scrollView: { flex: 1 },
   scrollContent: {
-    paddingHorizontal: spacing.xl, // 24px
+    paddingHorizontal: spacing.lg || 24,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: spacing.xl,
   },
-
-  // Header Section
-  headerSection: {
-    alignItems: 'center',
-    marginBottom: spacing['3xl'], // 40px
-  },
+  headerSection: { marginBottom: spacing.xl || 32 },
   headerTitle: {
-    fontSize: fontSizes['2xl'], // 24px
-    fontFamily: fontFamilies.heading, // Aldrich
-    color: colors.white, // White text on light background (design uses white)
-    marginBottom: spacing.base,
-    textAlign: 'center',
+    fontSize: fontSizes['3xl'] || 28,
+    fontWeight: fontWeights.bold || 'bold',
+    color: colors.accent || '#FFC300',
+    marginBottom: 8,
   },
   headerSubtitle: {
-    fontSize: fontSizes.base, // 14px
-    fontFamily: fontFamilies.body,
-    color: colors.blue, // #003566
-    opacity: 0.6,
-    textAlign: 'center',
+    fontSize: fontSizes.base || 16,
+    color: colors.white || '#FFFFFF',
+    opacity: 0.8,
   },
-
-  // Card Styles
   card: {
-    backgroundColor: colors.white,
-    marginBottom: spacing.xl, // 24px
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
+    marginBottom: spacing.lg || 20,
+    padding: spacing.lg || 20,
   },
-  cardContent: {
-    width: '100%',
-  },
+  cardContent: { gap: spacing.sm || 8 },
   cardLabel: {
-    fontSize: fontSizes.base,
-    fontFamily: fontFamilies.body,
-    fontWeight: fontWeights.medium,
-    color: colors.blue, // #003566
-    opacity: 0.7,
-    marginBottom: spacing.base,
+    fontSize: fontSizes.lg || 18,
+    fontWeight: fontWeights.bold || 'bold',
+    color: colors.primary || '#000814',
+    marginBottom: 12,
   },
-
-  // Stepper Container (Credit Hours)
   stepperContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.lg,
   },
   stepperButton: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.accent, // #ffc300 - Yellow
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.md || 8,
+    backgroundColor: colors.accent || '#FFC300',
     justifyContent: 'center',
     alignItems: 'center',
   },
   stepperButtonText: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: colors.primary,
-    fontFamily: fontFamilies.body,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: colors.primary || '#000814',
   },
   stepperValue: {
-    fontSize: fontSizes['2xl'],
-    fontFamily: fontFamilies.heading,
-    color: colors.blue, // #003566
-    fontWeight: fontWeights.normal,
-    minWidth: 60,
-    textAlign: 'center',
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: colors.primary || '#000814',
+    marginHorizontal: 28,
   },
-
-  // Intensity Level Buttons
-  intensityButtonsContainer: {
-    flexDirection: 'row',
-    gap: spacing.base,
-    justifyContent: 'space-between',
-  },
+  intensityButtonsContainer: { flexDirection: 'row', gap: 12 },
   intensityButton: {
     flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.base,
-    borderRadius: borderRadius.md,
     borderWidth: 2,
-    borderColor: colors.grayBorder, // #e5e7eb
-    backgroundColor: colors.white,
+    borderColor: colors.accent || '#FFC300',
+    borderRadius: borderRadius.md || 8,
+    padding: 14,
     alignItems: 'center',
   },
-  intensityButtonActive: {
-    backgroundColor: colors.accent, // #ffc300
-    borderColor: colors.accent,
-  },
+  intensityButtonActive: { backgroundColor: colors.accent || '#FFC300' },
   intensityButtonText: {
-    fontSize: fontSizes.base,
-    fontFamily: fontFamilies.body,
-    fontWeight: fontWeights.medium,
-    color: colors.blue, // #003566
+    color: colors.accent || '#FFC300',
+    fontWeight: 'bold',
   },
-  intensityButtonTextActive: {
-    color: colors.primary, // #000814
-  },
-
-  // Weekly Target Section - MAIN FOCAL POINT
+  intensityButtonTextActive: { color: colors.primary || '#000814' },
   weeklyTargetContainer: {
     alignItems: 'center',
-    marginBottom: spacing['3xl'], // 40px
-    paddingVertical: spacing['2xl'],
-    paddingHorizontal: spacing.xl,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
+    marginVertical: spacing.xl || 32,
   },
   weeklyTargetLabel: {
-    fontSize: fontSizes.base,
-    fontFamily: fontFamilies.body,
-    fontWeight: fontWeights.medium,
-    color: colors.primary, // #000814
-    opacity: 0.7,
-    marginBottom: spacing.base,
+    color: colors.white || '#FFFFFF',
+    opacity: 0.8,
+    fontSize: 16,
   },
   weeklyTargetNumber: {
-    fontSize: fontSizes['5xl'], // 60px - HUGE number
-    fontFamily: fontFamilies.heading, // Aldrich
-    color: colors.primary, // #000814
-    fontWeight: fontWeights.normal,
-    lineHeight: 60,
+    color: colors.accent || '#FFC300',
+    fontSize: 64,
+    fontWeight: 'bold',
   },
   weeklyTargetUnit: {
-    fontSize: fontSizes.md,
-    fontFamily: fontFamilies.body,
-    fontWeight: fontWeights.medium,
-    color: colors.primary, // #000814
-    opacity: 0.8,
-    marginTop: spacing.sm,
+    color: colors.white || '#FFFFFF',
+    fontSize: 18,
   },
   weeklyTargetFormula: {
-    fontSize: fontSizes.xs,
-    fontFamily: fontFamilies.body,
-    color: colors.gray,
-    marginTop: spacing.sm,
+    color: colors.white || '#FFFFFF',
     opacity: 0.6,
+    marginTop: 8,
   },
-
-  // Study Days Section
   studyDaysTitle: {
-    fontSize: fontSizes.md,
-    fontFamily: fontFamilies.body,
-    fontWeight: fontWeights.medium,
-    color: colors.blue, // #003566
-    marginBottom: spacing.sm,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.primary || '#000814',
   },
   studyDaysSubtitle: {
-    fontSize: fontSizes.base,
-    fontFamily: fontFamilies.body,
-    color: colors.blue,
-    opacity: 0.6,
-    marginBottom: spacing.lg,
+    color: colors.gray || '#666',
+    marginBottom: 12,
   },
-
-  // Days Container
-  daysContainer: {
-    gap: spacing.sm, // 8px gap between checkboxes
-  },
+  daysContainer: { gap: 10 },
   dayCheckbox: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 56, // 56px height as per spec
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.base,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.grayBackground, // #f9fafb
-    borderWidth: 2,
-    borderColor: 'transparent',
+    padding: 12,
+    borderRadius: borderRadius.md || 8,
+    backgroundColor: colors.grayBackground || '#F2F2F2',
   },
-  dayCheckboxSelected: {
-    backgroundColor: colors.blueBackground, // #dbeafe
-    borderColor: colors.accent, // #ffc300
-  },
+  dayCheckboxSelected: { backgroundColor: colors.accent || '#FFC300' },
   dayCheckboxInner: {
     width: 24,
     height: 24,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.white,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.grayBorder,
+    borderColor: colors.primary || '#000814',
+    marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing.base,
   },
   dayCheckboxCheck: {
-    fontSize: fontSizes.md,
-    color: colors.accent, // #ffc300
-    fontWeight: fontWeights.bold,
+    color: colors.primary || '#000814',
+    fontWeight: 'bold',
   },
   dayCheckboxText: {
-    fontSize: fontSizes.md,
-    fontFamily: fontFamilies.body,
-    fontWeight: fontWeights.medium,
-    color: colors.blue, // #003566
-    flex: 1,
+    color: colors.primary || '#000814',
+    fontSize: 16,
   },
-  dayCheckboxTextSelected: {
-    color: colors.primary, // #000814
-    fontWeight: fontWeights.bold,
-  },
-
-  // Daily Hours Display
+  dayCheckboxTextSelected: { fontWeight: 'bold' },
   dailyHoursContainer: {
     alignItems: 'center',
-    marginBottom: spacing['3xl'], // 40px
-    paddingVertical: spacing.xl,
-    paddingHorizontal: spacing.xl,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
+    marginVertical: spacing.lg || 24,
   },
   dailyHoursNumber: {
-    fontSize: fontSizes['4xl'], // 48px or close
-    fontFamily: fontFamilies.heading,
-    color: colors.primary, // #000814
-    fontWeight: fontWeights.normal,
+    color: colors.accent || '#FFC300',
+    fontSize: 44,
+    fontWeight: 'bold',
   },
   dailyHoursLabel: {
-    fontSize: fontSizes.base,
-    fontFamily: fontFamilies.body,
-    color: colors.blue,
-    opacity: 0.7,
-    marginTop: spacing.sm,
+    color: colors.white || '#FFFFFF',
+    fontSize: 16,
   },
-
-  // Buttons Container
   buttonsContainer: {
-    gap: spacing.base,
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: spacing.lg || 24,
   },
-  skipButton: {
-    marginBottom: 0,
-  },
-  saveButton: {
-    marginBottom: 0,
-  },
+  skipButton: { flex: 1 },
+  saveButton: { flex: 1 },
 });
