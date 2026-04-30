@@ -283,4 +283,24 @@ router.post('/activity', async (req, res) => {
   }
 });
 
+// DELETE /api/social/friends/:userId/:friendId
+router.delete('/friends/:userId/:friendId', async (req, res) => {
+  try {
+    const { userId, friendId } = req.params;
+
+    await db.execute(
+      `
+      DELETE FROM friendships
+      WHERE (user_id = ? AND friend_id = ?)
+         OR (user_id = ? AND friend_id = ?)
+      `,
+      [userId, friendId, friendId, userId]
+    );
+
+    return res.json({ message: 'Friend removed successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

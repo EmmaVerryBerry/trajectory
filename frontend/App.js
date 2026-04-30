@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
+import GoalsScreen from './src/screens/GoalsScreen';
 import GoalSettingScreen from './src/screens/GoalSettingScreen';
 import LogSessionScreen from './src/screens/LogSessionScreen';
 import PomodoroScreen from './src/screens/PomodoroScreen';
@@ -20,6 +21,7 @@ import AchievementsScreen from './src/screens/AchievementsScreen';
 import FriendsScreen from './src/screens/FriendsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CommunityScreen from './src/screens/CommunityScreen';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -87,16 +89,14 @@ function MainTabs() {
         component={PomodoroScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={styles.startButtonContainer}>
-              <View style={styles.startButton}>
-                <View style={styles.playIconTriangle} />
-              </View>
-            </View>
-          ),
-          tabBarLabel: ({ focused }) => (
-            <Text style={[styles.startLabel, { color: focused ? '#FFD700' : 'rgba(255, 255, 255, 0.4)' }]}>
-              Start
-            </Text>
+            <Image
+              source={require('./assets/icons/users.png')} 
+              style={[
+                styles.tabIcon,
+                { tintColor: focused ? '#FFD700' : 'rgba(255, 255, 255, 0.4)' }
+              ]}
+              resizeMode="contain"
+            />
           ),
         }}
       />
@@ -106,7 +106,7 @@ function MainTabs() {
         options={{
           tabBarIcon: ({ focused }) => (
             <Image
-              source={require('./assets/icons/users.png')}
+              source={require('./assets/icons/badge.png')}
               style={[
                 styles.tabIcon,
                 { tintColor: focused ? '#FFD700' : 'rgba(255, 255, 255, 0.4)' }
@@ -122,7 +122,7 @@ function MainTabs() {
         options={{
           tabBarIcon: ({ focused }) => (
             <Image
-              source={require('./assets/icons/badge.png')}
+              source={require('./assets/icons/moon.png')}
               style={[
                 styles.tabIcon,
                 { tintColor: focused ? '#FFD700' : 'rgba(255, 255, 255, 0.4)' }
@@ -174,6 +174,8 @@ export default function App() {
         ) : null}
         <Stack.Screen name="Main" component={MainTabs} />
         <Stack.Screen name="Community" component={CommunityScreen} />
+        <Stack.Screen name="Goals" component={GoalSettingScreen} />
+        <Stack.Screen name="ViewGoals" component={GoalsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -185,7 +187,7 @@ const styles = StyleSheet.create({
     height: 24,
   },
   startButtonContainer: {
-    marginTop: -20,
+    marginTop: 0,
   },
   startButton: {
     width: 56,

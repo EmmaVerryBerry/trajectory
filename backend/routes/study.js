@@ -146,4 +146,34 @@ router.get('/streak/:userId', async (req, res) => {
   }
 });
 
+// DELETE /api/study/sessions/:sessionId
+router.delete('/sessions/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    const [rows] = await db.execute(
+      `SELECT user_id FROM study_sessions WHERE session_id = ?`,
+      [sessionId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Study session not found' });
+    }
+
+    const userId = rows[0].user_id;
+
+    await db.execute(
+      `DELETE FROM study_sessions WHERE session_id = ?`,
+      [sessionId]
+    );
+
+    await updateStreak(userId);
+    await checkAndUnlockAchievements(userId);
+
+    return res.json({ message: 'Study session deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

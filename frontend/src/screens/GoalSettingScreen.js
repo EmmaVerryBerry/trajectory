@@ -70,14 +70,16 @@ export default function GoalSettingScreen({ navigation }) {
 
     const userId = await getUserId();
 
-    await goalsAPI.createGoal({
-      user_id: userId,
-      credit_hours: creditHours,
-      difficulty_level: difficultyLevel,
-      study_days: studyDays,
-    });
+const saved = await goalsAPI.createGoal({
+  user_id: userId,
+  credit_hours: creditHours,
+  difficulty_level: difficultyLevel,
+  study_days: studyDays,
+});
 
-    alert('Goal saved!');
+alert('Goal saved!');
+
+navigation.navigate('ViewGoals', { goal: saved });
 
     if (navigation) {
       navigation.navigate('Home');
@@ -91,15 +93,22 @@ export default function GoalSettingScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.blueBackgroundLight} />
-      <ScrollView
+  <View style={styles.container}>
+    <StatusBar barStyle="dark-content" backgroundColor={colors.blueBackgroundLight} />
+
+    {/* HEADER */}
+    <View style={styles.headerRow}>
+      <Text style={styles.back} onPress={() => navigation.goBack()}>←</Text>
+      <Text style={styles.headerTitle}>Set Goals</Text>
+    </View>
+
+    <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>🎯 Set Your Goals</Text>
+          <Text style={styles.headerMainTitle}>🎯 Set Your Goals</Text>
           <Text style={styles.headerSubtitle}>Plan your study schedule</Text>
         </View>
 
@@ -227,7 +236,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
   },
   headerSection: { marginBottom: spacing.xl || 32 },
-  headerTitle: {
+  headerMainTitle: {
     fontSize: fontSizes['3xl'] || 28,
     fontWeight: fontWeights.bold || 'bold',
     color: colors.accent || '#FFC300',
@@ -368,4 +377,23 @@ const styles = StyleSheet.create({
   },
   skipButton: { flex: 1 },
   saveButton: { flex: 1 },
+
+  headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 10,
+  paddingHorizontal: spacing.lg || 24,
+  }, 
+
+  back: {
+    color: colors.accent || '#FFC300',
+    fontSize: 20,
+    marginRight: 10,
+  },
+
+  headerTitle: {
+    fontSize: 24,
+    color: colors.accent || '#FFC300',
+    fontWeight: 'bold',
+  },
 });
