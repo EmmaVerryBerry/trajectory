@@ -60,7 +60,17 @@ export default function LogSessionScreen() {
     };
 
     const saved = await studyAPI.createSession(newSession);
-    setSessions([saved, ...sessions.slice(0, 2)]);
+
+    const sessionToShow = {
+      ...newSession,
+      ...saved,
+      subject: newSession.subject,
+      session_date: newSession.session_date,
+      duration_minutes: newSession.duration_minutes,
+      notes: newSession.notes,
+    };
+
+setSessions([sessionToShow, ...sessions.slice(0, 2)]);
 
     setSubject('');
     setHours('0');
@@ -136,8 +146,27 @@ export default function LogSessionScreen() {
     setSelectedDate(newDate);
   };
 
+const handleDeleteSession = async (sessionToDelete) => {
+  const sessionId = sessionToDelete.session_id || sessionToDelete.id;
+
+  if (!sessionId) {
+    alert('Cannot delete this session');
+    return;
+  }
+
+  await studyAPI.deleteSession(sessionId);
+
+  setSessions(
+    sessions.filter((session) =>
+      (session.session_id || session.id) !== sessionId
+    )
+  );
+};
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+    style={styles.container}
+    contentContainerStyle={{ paddingBottom: 140 }}
+  >
       <View style={styles.content}>
         <Text style={styles.header}>Log Session</Text>
 
@@ -146,7 +175,9 @@ export default function LogSessionScreen() {
             label="Subject/Course"
             value={subject}
             onChangeText={setSubject}
-            placeholder="e.g. Calculus II"
+            placeholder="Enter Subject"
+            placeholderTextColor="#666"
+            inputStyle={{ color: '#000' }}
             autoCapitalize="words"
           />
 
@@ -268,7 +299,12 @@ export default function LogSessionScreen() {
                 <Card key={session.session_id || session.id || index} style={styles.sessionCard}>
                   <View style={styles.sessionHeader}>
                     <Text style={styles.sessionSubject}>{sessionSubject}</Text>
+                   <View style={styles.sessionActions}>
                     <Text style={styles.sessionDate}>{formatDate(sessionDate)}</Text>
+                    <TouchableOpacity onPress={() => handleDeleteSession(session)}>
+                      <Text style={styles.deleteText}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
                   </View>
                   <View style={styles.sessionDetails}>
                     <Text style={styles.sessionDuration}>
@@ -457,5 +493,14 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     fontFamily: 'SpaceGrotesk-Regular',
     color: colors.gray,
+  },
+  sessionActions: {
+  alignItems: 'flex-end',
+  },
+  deleteText: {
+    marginTop: spacing.xs,
+    fontSize: fontSizes.sm,
+    fontFamily: 'SpaceGrotesk-Medium',
+    color: colors.error || '#EF4444',
   },
 });

@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { colors } from '../constants';
 import { studyAPI, socialAPI, usersAPI, authAPI } from '../services/api';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function HomeScreen({ navigation }) {
   const [streak, setStreak] = useState({ currentStreak: 0, current_streak: 0 });
@@ -21,6 +23,12 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     loadData();
   }, []);
+
+  useFocusEffect(
+  useCallback(() => {
+    loadData();
+  }, [])
+);
 
   const getUserId = async () => {
     const storedUser = await Promise.resolve(authAPI.getStoredUser());
@@ -124,6 +132,44 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.statLabel}>Achievements</Text>
           </View>
         </View>
+
+      <View style={styles.goalsSection}>
+        <View style={styles.leaderboardHeader}>
+          <View style={styles.leaderboardTitleContainer}>
+            <Image
+              source={require('../../assets/icons/clock.png')}
+              style={styles.leaderboardTitleIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.leaderboardTitle}>SET GOALS</Text>
+          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Goals')}>
+            <Text style={styles.viewAllText}>Open →</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={styles.goalCard}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('Goals')}
+        >
+          <Text style={styles.goalTitle}>Plan your study week</Text>
+          <Text style={styles.goalText}>
+            Set credit hours, difficulty, and planned study days.
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity
+        style={styles.goalCard}
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate('ViewGoals')}
+      >
+        <Text style={styles.goalTitle}>View current goals</Text>
+        <Text style={styles.goalText}>
+          Review your saved weekly target and study schedule.
+        </Text>
+      </TouchableOpacity>
 
         <View style={styles.leaderboardSection}>
           <View style={styles.leaderboardHeader}>
@@ -443,5 +489,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.white,
+  },
+
+  goalsSection: {
+  marginBottom: 24,
+  },
+
+  goalCard: {
+  backgroundColor: '#1E293B',
+  borderRadius: 20,
+  padding: 20,
+  marginBottom: 12,
+},
+  goalTitle: {
+    fontFamily: 'SpaceGrotesk-Bold',
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.white,
+    marginBottom: 8,
+  },
+  goalText: {
+    fontFamily: 'SpaceGrotesk-Regular',
+    fontSize: 14,
+    color: colors.white,
+    opacity: 0.6,
+    lineHeight: 20,
   },
 });

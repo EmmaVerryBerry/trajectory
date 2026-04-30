@@ -89,7 +89,12 @@ router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
 
     const [rows] = await db.execute(
-      `SELECT * FROM goals WHERE user_id = ?`,
+      `
+      SELECT * FROM goals
+      WHERE user_id = ?
+      ORDER BY goal_id DESC
+      LIMIT 1
+      `,
       [userId]
     );
 
@@ -97,7 +102,13 @@ router.get('/:userId', async (req, res) => {
       return res.status(404).json({ error: 'No goals found for this user' });
     }
 
-    return res.json(rows);
+    const goal = rows[0];
+
+    if (typeof goal.study_days === 'string') {
+      goal.study_days = JSON.parse(goal.study_days);
+    }
+
+    return res.json(goal);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

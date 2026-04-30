@@ -120,6 +120,10 @@ export const studyAPI = {
     { weeklyHours: 3.3, goalPercentage: 45, sessionsThisWeek: 4 }),
   getStreak: (userId) => tryApi(() => api.get(`/study/streak/${userId}`),
     { currentStreak: 3, longestStreak: 7 }),
+    deleteSession: (sessionId) =>
+  tryApi(() => api.delete(`/study/sessions/${sessionId}`), {
+    message: 'Deleted',
+  }),
 };
 
 // ── Achievements ──
@@ -173,6 +177,10 @@ export const socialAPI = {
   createActivity: (data) => tryApi(() => api.post('/social/activity', data), data),
   getGlobalLeaderboard: () => tryApi(() => api.get('/social/leaderboard/global'), []),
   getCommunityLeaderboard: (type, id) => tryApi(() => api.get(`/social/leaderboard/community/${type}/${id}`), []),
+  removeFriend: (userId, friendId) =>
+  tryApi(() => api.delete(`/social/friends/${userId}/${friendId}`), {
+    message: 'Removed',
+  }),
 };
 
 export default api;
